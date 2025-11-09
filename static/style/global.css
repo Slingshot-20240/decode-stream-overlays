@@ -1,0 +1,15 @@
+@font-face {
+	font-family: InterVariable;
+	src: url(/InterVariable.ttf);
+}
+
+:root {
+	font-family: InterVariable, sans-serif;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	user-select: none;
+}

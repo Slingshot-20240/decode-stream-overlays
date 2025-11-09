@@ -1,0 +1,29 @@
+#overlay-container #overlay-content #teams-and-scores #scores-and-timer {
+	width: 384px;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 768px;
+	display: flex;
+
+	#blue-score,
+	#red-score {
+		width: 128px;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		h1 {
+			font-size: 40px;
+			font-weight: 600;
+		}
+	}
+
+	#blue-score,
+	#red-score {
+		h1 {
+			color: #fff;
+		}
+	}
+}

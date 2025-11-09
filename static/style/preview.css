@@ -1,0 +1,29 @@
+#overlay-container #overlay-content #teams-and-scores #up-next-header {
+	position: absolute;
+	left: 768px;
+	width: 384px;
+	height: 64px;
+	padding: 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	h2 {
+		font-size: 28px;
+		font-weight: 600;
+	}
+
+	#randomization {
+		position: absolute;
+		left: 256px;
+		width: 112px;
+		height: 32px;
+		display: flex;
+		gap: 8px;
+
+		img {
+			width: 32px;
+			height: 32px;
+		}
+	}
+}

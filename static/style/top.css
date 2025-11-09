@@ -1,0 +1,154 @@
+#overlay-container {
+	width: 1920px;
+	height: 1080px;
+	position: relative;
+
+	#overlay-content {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		top: 0;
+		left: 0;
+		z-index: 1;
+
+		#header {
+			width: 100%;
+			height: 80px;
+			position: relative;
+
+			div {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				display: flex;
+				align-items: center;
+
+				h1 {
+					color: #fff;
+				}
+			}
+
+			#league-title,
+			#event-title {
+				h1 {
+					font-size: 24px;
+					font-weight: 400;
+				}
+			}
+
+			#league-title {
+				justify-content: flex-start;
+				padding-left: 236px;
+			}
+
+			#match-title {
+				justify-content: center;
+
+				h1 {
+					font-size: 28px;
+					font-weight: 500;
+				}
+			}
+
+			#event-title {
+				justify-content: flex-end;
+				width: 1760px;
+			}
+		}
+
+		#teams-and-scores {
+			width: 100%;
+			height: 64px;
+			position: relative;
+
+			.team-card {
+				width: 372px;
+				height: 48px;
+				display: flex;
+				align-items: center;
+
+				.team-number,
+				.team-name {
+					h2 {
+						font-size: 22px;
+						font-weight: 450;
+						color: #fff;
+					}
+				}
+
+				.team-number {
+					width: 72px;
+				}
+
+				.team-name {
+					width: 240px;
+					padding: 0 14px;
+				}
+
+				.team-rank {
+					width: 48px;
+					text-align: center;
+
+					h2 {
+						font-size: 24px;
+						font-weight: 700;
+						color: #000;
+					}
+				}
+			}
+
+			#blue-teams {
+				width: 768px;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				padding: 0 8px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				.team-number {
+					margin-left: 12px;
+					text-align: left;
+				}
+
+				.team-name {
+					text-align: right;
+				}
+			}
+
+			#red-teams {
+				width: 768px;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				right: 0;
+				padding: 0 8px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				.team-name {
+					text-align: left;
+				}
+
+				.team-number {
+					margin-right: 12px;
+					text-align: right;
+				}
+			}
+		}
+	}
+
+	#overlay-background {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 0;
+	}
+}
