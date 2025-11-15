@@ -22,9 +22,11 @@
 	import MatchEndSound from '$lib/assets/audio/match_end.wav';
 	import AbortSound from '$lib/assets/audio/abort.wav';
 
+	let scoringIp = '';
 	let eventCode = '';
 	let leagueTitle = '';
 	let eventTitle = '';
+	let useLocalTime = false;
 
 	let type: types.DisplayType = types.DisplayType.NONE;
 	let showResultsUpNextOverlay = false;
@@ -72,79 +74,83 @@
 			matchStartSound.play();
 		}
 
-		setTimeout(() => {
-			timerRunning = true;
-			let start = 0;
-			let nextAt = 0;
+		setTimeout(
+			() => {
+				timerRunning = true;
+				let start = 0;
+				let nextAt = 0;
 
-			let interval = function () {
-				if (!timerRunning) return;
+				let interval = function () {
+					if (!timerRunning) return;
 
-				if (!start) {
-					start = new Date().getTime();
-					nextAt = start;
-				} else if (timer <= 121 && timerPeriod === types.TimerPeriod.AUTO) {
-					timer = 8;
-					timerPeriod = types.TimerPeriod.TRANSITION;
-					autoEndSound.pause();
-					autoEndSound.currentTime = 0;
-					autoEndSound.play();
-				} else if (timer <= 1 && timerPeriod === types.TimerPeriod.TRANSITION) {
-					timer = 120;
-					timerPeriod = types.TimerPeriod.TELEOP;
-					teleopStartSound.pause();
-					teleopStartSound.currentTime = 0;
-					teleopStartSound.play();
-				} else if (timer <= 0) {
-					timerRunning = false;
-					timerPeriod = types.TimerPeriod.NONE;
-				} else {
-					timer--;
-				}
-
-				if (timerPeriod === types.TimerPeriod.AUTO && timer <= 130) {
-					type = types.DisplayType.AUTO_END;
-				} else if (timerPeriod === types.TimerPeriod.TRANSITION) {
-					if (timer === 6) {
-						pickUpControllersSound.pause();
-						pickUpControllersSound.currentTime = 0;
-						pickUpControllersSound.play();
-					} else if (timer === 3) {
-						threeTwoOneSound.pause();
-						threeTwoOneSound.currentTime = 0;
-						threeTwoOneSound.play();
-					}
-				} else if (timerPeriod === types.TimerPeriod.TELEOP && timer > 0) {
-					if (timer > 20) {
-						type = types.DisplayType.TELEOP;
+					if (!start) {
+						start = new Date().getTime();
+						nextAt = start;
+					} else if (timer <= 121 && timerPeriod === types.TimerPeriod.AUTO) {
+						timer = 8;
+						timerPeriod = types.TimerPeriod.TRANSITION;
+						autoEndSound.pause();
+						autoEndSound.currentTime = 0;
+						autoEndSound.play();
+					} else if (timer <= 1 && timerPeriod === types.TimerPeriod.TRANSITION) {
+						timer = 120;
+						timerPeriod = types.TimerPeriod.TELEOP;
+						teleopStartSound.pause();
+						teleopStartSound.currentTime = 0;
+						teleopStartSound.play();
+					} else if (timer <= 0) {
+						timerRunning = false;
+						timerPeriod = types.TimerPeriod.NONE;
 					} else {
-						type = types.DisplayType.ENDGAME;
-						if (timer === 20) {
-							endgameSound.pause();
-							endgameSound.currentTime = 0;
-							endgameSound.play();
-						}
+						timer--;
 					}
-				} else if (timer <= 0) {
-					timerRunning = false;
-					timerPeriod = types.TimerPeriod.NONE;
-					type = types.DisplayType.AWAITING_REVIEW;
-					matchEndSound.pause();
-					matchEndSound.currentTime = 0;
-					matchEndSound.play();
-					return;
-				}
 
-				nextAt += 1000;
+					if (timerPeriod === types.TimerPeriod.AUTO && timer <= 130) {
+						type = types.DisplayType.AUTO_END;
+					} else if (timerPeriod === types.TimerPeriod.TRANSITION) {
+						if (timer === 6) {
+							pickUpControllersSound.pause();
+							pickUpControllersSound.currentTime = 0;
+							pickUpControllersSound.play();
+						} else if (timer === 3) {
+							threeTwoOneSound.pause();
+							threeTwoOneSound.currentTime = 0;
+							threeTwoOneSound.play();
+						}
+					} else if (timerPeriod === types.TimerPeriod.TELEOP && timer > 0) {
+						if (timer > 20) {
+							type = types.DisplayType.TELEOP;
+						} else {
+							type = types.DisplayType.ENDGAME;
+							if (timer === 20) {
+								endgameSound.pause();
+								endgameSound.currentTime = 0;
+								endgameSound.play();
+							}
+						}
+					} else if (timer <= 0) {
+						timerRunning = false;
+						timerPeriod = types.TimerPeriod.NONE;
+						type = types.DisplayType.AWAITING_REVIEW;
+						matchEndSound.pause();
+						matchEndSound.currentTime = 0;
+						matchEndSound.play();
+						return;
+					}
 
-				timeout = setTimeout(interval, nextAt - new Date().getTime());
-			};
+					nextAt += 1000;
 
-			interval();
-		}, seconds - floored);
+					timeout = setTimeout(interval, nextAt - new Date().getTime());
+				};
+
+				interval();
+			},
+			(seconds - floored) * 1000
+		);
 	}
 
 	function stopTimer() {
+        timer = 0;
 		timerRunning = false;
 		clearTimeout(timeout);
 		abortSound.pause();
@@ -219,9 +225,11 @@
 
 	onMount(() => {
 		const params = new URLSearchParams(location.search);
+		scoringIp = params.get('ip') || '';
 		eventCode = params.get('code') || '';
 		leagueTitle = params.get('league') || '';
 		eventTitle = params.get('event') || '';
+		useLocalTime = params.get('useLocalTime') === 'true';
 
 		matchStartSound = document.getElementById('match-start-sound') as HTMLAudioElement;
 		autoEndSound = document.getElementById('auto-end-sound') as HTMLAudioElement;
@@ -234,18 +242,39 @@
 		matchEndSound = document.getElementById('match-end-sound') as HTMLAudioElement;
 		abortSound = document.getElementById('abort-sound') as HTMLAudioElement;
 
-		let ws = new WebSocket(`ws://localhost/stream/display/command/?code=${eventCode}`);
+		connect();
+	});
+
+	function connect() {
+		let ws = new WebSocket(`ws://${scoringIp}/stream/display/command/?code=${eventCode}`);
 
 		ws.onopen = () => {
 			console.log('WebSocket connection opened');
 
-			ws.send(`TIMESYNC:{"jsonrpc":"2.0","id":${timeSync.id},"method":"timesync"}`);
-			timeSync.sentAt = ts();
-			timeSync.interval = setInterval(() => {
-				timeSync.id++;
+			if (useLocalTime) {
+				timeSync.receivedTs = Date.now();
+				timeSync.receivedAtLocal = performance.now();
+
+				if (!initialized) {
+					initialized = true;
+					if (
+						informationalData?.index > scoringData?.index ||
+						scoringData?.type === 'SCORE_UPDATE'
+					) {
+						updateType(informationalData);
+					} else {
+						updateType(scoringData);
+					}
+				}
+			} else {
 				ws.send(`TIMESYNC:{"jsonrpc":"2.0","id":${timeSync.id},"method":"timesync"}`);
 				timeSync.sentAt = ts();
-			}, 1000);
+				timeSync.interval = setInterval(() => {
+					timeSync.id++;
+					ws.send(`TIMESYNC:{"jsonrpc":"2.0","id":${timeSync.id},"method":"timesync"}`);
+					timeSync.sentAt = ts();
+				}, 30000);
+			}
 		};
 
 		ws.onmessage = (event) => {
@@ -389,13 +418,13 @@
 		ws.onclose = () => {
 			console.log('WebSocket connection closed');
 			clearInterval(timeSync.interval);
-			ws = new WebSocket('ws://localhost/stream/display/command/?code=ustxcrs2');
+			connect();
 		};
 
 		ws.onerror = (error) => {
 			console.error('WebSocket error:', error);
 		};
-	});
+	}
 
 	let currentComponent: any;
 
