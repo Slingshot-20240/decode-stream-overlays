@@ -3,7 +3,7 @@
 	src: url(/InterVariable.ttf);
 }
 
-:root {
+:root, * {
 	font-family: InterVariable, sans-serif;
 }
 
