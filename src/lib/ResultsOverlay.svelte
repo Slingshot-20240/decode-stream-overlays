@@ -1,8 +1,6 @@
 <svelte:options customElement="results-overlay" />
 
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-
 	import type { ScoreResultMessage } from './types';
 
 	import BlueWins from '$lib/assets/video/blue_wins.webm';
@@ -23,8 +21,13 @@
 	export let leagueTitle: string;
 	export let eventTitle: string;
 	export let data: ScoreResultMessage = {} as ScoreResultMessage;
+	export let useLeagueRanking: boolean;
+
+	let mounted = false;
 
 	let showVideo = true;
+
+	let resultSoundTimeouts: Array<NodeJS.Timeout> = [];
 
 	function artifactImage(state: 'NONE' | 'GREEN' | 'PURPLE') {
 		switch (state) {
@@ -49,66 +52,77 @@
 	}
 
 	onMount(() => {
+		mounted = true;
+	});
+
+	function reveal() {
+		if (!mounted) return;
+
 		let videoElement: HTMLVideoElement;
 
 		let blueWins = document.getElementById('blue-wins') as HTMLVideoElement;
 		let tie = document.getElementById('tie') as HTMLVideoElement;
 		let redWins = document.getElementById('red-wins') as HTMLVideoElement;
+		let resultsSound = document.getElementById('results-sound') as HTMLAudioElement;
+
+		blueWins.pause();
+		tie.pause();
+		redWins.pause();
+		resultsSound.pause();
+		resultSoundTimeouts.forEach((timeout) => clearTimeout(timeout));
 
 		if (data.params?.blueScore > data.params?.redScore) {
 			videoElement = blueWins;
+			blueWins.hidden = false;
 			tie.hidden = true;
 			redWins.hidden = true;
 		} else if (data.params?.redScore > data.params?.blueScore) {
 			videoElement = redWins;
 			blueWins.hidden = true;
 			tie.hidden = true;
+			redWins.hidden = false;
 		} else {
 			videoElement = tie;
 			blueWins.hidden = true;
+			tie.hidden = false;
 			redWins.hidden = true;
 		}
 
+		showVideo = true;
+		videoElement.currentTime = 0;
 		videoElement.volume = 0.5;
 		videoElement.play();
 
-		setTimeout(() => {
-			showVideo = false;
-			let resultsSound = document.getElementById('results-sound') as HTMLAudioElement;
-			resultsSound.volume = 0.6;
-			resultsSound.play();
-		}, 7026);
-	});
+		resultSoundTimeouts.push(
+			setTimeout(() => {
+				showVideo = false;
+				resultsSound.currentTime = 0;
+				resultsSound.volume = 0.6;
+				resultsSound.play();
+			}, 7026)
+		);
+	}
+
+	$: if (data && mounted) {
+		reveal();
+	}
 </script>
 
 <div id="overlay-container">
 	<div id="overlay-content">
-		{#if showVideo}
-			<!-- svelte-ignore a11y_media_has_caption -->
-			<video
-				out:fade={{ delay: 500, duration: 500 }}
-				id="blue-wins"
-				class="reveal-video"
-				src={BlueWins}
-				preload="auto"
-			></video>
-			<!-- svelte-ignore a11y_media_has_caption -->
-			<video
-				out:fade={{ delay: 500, duration: 500 }}
-				id="tie"
-				class="reveal-video"
-				src={Tie}
-				preload="auto"
-			></video>
-			<!-- svelte-ignore a11y_media_has_caption -->
-			<video
-				out:fade={{ delay: 500, duration: 500 }}
-				id="red-wins"
-				class="reveal-video"
-				src={RedWins}
-				preload="auto"
-			></video>
-		{/if}
+		<!-- svelte-ignore a11y_media_has_caption -->
+		<video
+			id="blue-wins"
+			class="reveal-video"
+			class:hidden={!showVideo}
+			src={BlueWins}
+			preload="auto"
+		></video>
+		<!-- svelte-ignore a11y_media_has_caption -->
+		<video id="tie" class="reveal-video" class:hidden={!showVideo} src={Tie} preload="auto"></video>
+		<!-- svelte-ignore a11y_media_has_caption -->
+		<video id="red-wins" class="reveal-video" class:hidden={!showVideo} src={RedWins} preload="auto"
+		></video>
 
 		<audio id="results-sound" src={ResultsSound} preload="auto"></audio>
 
@@ -123,253 +137,72 @@
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[0]?.number}</h2></div>
 					<div class="team-name"><h2>{data.params?.blue?.teams[0]?.name}</h2></div>
-					<div class="team-rank"><h2>{data.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? data.params?.blue?.teams[0]?.leagueRanking
+								: data.params?.blue?.teams[0]?.ranking || 'NP'}
+						</h2>
+					</div>
 				</div>
 
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[1]?.number}</h2></div>
 					<div class="team-name"><h2>{data.params?.blue?.teams[1]?.name}</h2></div>
-					<div class="team-rank"><h2>{data.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? data.params?.blue?.teams[1]?.leagueRanking
+								: data.params?.blue?.teams[1]?.ranking || 'NP'}
+						</h2>
+					</div>
 				</div>
 			</div>
 
 			<div id="scores-and-timer">
-				<div id="blue-score"><h1>{data.params?.blueScore || data.params?.blueScores?.preFoulTotal + data.params?.redScores?.foulPointsCommitted || 0}</h1></div>
+				<div id="blue-score">
+					<h1>
+						{data.params?.blueScore ||
+							data.params?.blueScores?.preFoulTotal + data.params?.redScores?.foulPointsCommitted ||
+							0}
+					</h1>
+				</div>
 				<!-- svelte-ignore a11y_missing_content -->
 				<div id="match-timer"><h1></h1></div>
-				<div id="red-score"><h1>{data.params?.redScore || data.params?.redScores?.preFoulTotal + data.params?.blueScores?.foulPointsCommitted || 0}</h1></div>
+				<div id="red-score">
+					<h1>
+						{data.params?.redScore ||
+							data.params?.redScores?.preFoulTotal + data.params?.blueScores?.foulPointsCommitted ||
+							0}
+					</h1>
+				</div>
 			</div>
 
 			<div id="red-teams">
 				<div class="team-card">
-					<div class="team-rank"><h2>{data.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? data.params?.red?.teams[0]?.leagueRanking
+								: data.params?.red?.teams[0]?.ranking || 'NP'}
+						</h2>
+					</div>
 					<div class="team-name"><h2>{data.params?.red?.teams[0]?.name}</h2></div>
 					<div class="team-number"><h2>{data.params?.red?.teams[0]?.number}</h2></div>
 				</div>
 
 				<div class="team-card">
-					<div class="team-rank"><h2>{data.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? data.params?.red?.teams[1]?.leagueRanking
+								: data.params?.red?.teams[1]?.ranking || 'NP'}
+						</h2>
+					</div>
 					<div class="team-name"><h2>{data.params?.red?.teams[1]?.name}</h2></div>
 					<div class="team-number"><h2>{data.params?.red?.teams[1]?.number}</h2></div>
 				</div>
 			</div>
-		</div>
-
-		<div id="winner-banner">
-			{#if data.params?.blueScore > data.params?.redScore}
-				<svg
-					width="1920px"
-					height="1080px"
-					viewBox="0 0 1920 1080"
-					version="1.1"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlns:xlink="http://www.w3.org/1999/xlink"
-				>
-					<title>Results - Blue Wins</title>
-					<defs>
-						<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
-						<rect id="path-2" x="0" y="144" width="1920" height="936"></rect>
-						<filter
-							x="-6.8%"
-							y="-34.4%"
-							width="113.5%"
-							height="181.2%"
-							filterUnits="objectBoundingBox"
-							id="filter-4"
-						>
-							<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-							<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
-							></feGaussianBlur>
-							<feColorMatrix
-								values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0"
-								type="matrix"
-								in="shadowBlurOuter1"
-								result="shadowMatrixOuter1"
-							></feColorMatrix>
-							<feMerge>
-								<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-								<feMergeNode in="SourceGraphic"></feMergeNode>
-							</feMerge>
-						</filter>
-					</defs>
-					<g id="Results---Blue-Wins" stroke="none" fill="none" xlink:href="#path-1">
-						<mask id="mask-3" fill="white" maskUnits="userSpaceOnUse">
-							<use xlink:href="#path-2"></use>
-						</mask>
-						<g id="Rectangle"></g>
-						<g
-							id="Blue-Wins"
-							filter="url(#filter-4)"
-							stroke-width="1"
-							fill-rule="evenodd"
-							mask="url(#mask-3)"
-						>
-							<g transform="translate(768, 144)">
-								<rect
-									id="Background"
-									fill="#0066B3"
-									fill-rule="evenodd"
-									x="0"
-									y="0"
-									width="384"
-									height="64"
-								></rect>
-								<text
-									id="Blue-Wins!"
-									fill="none"
-									font-family="InterVariable-SemiBold, Inter Variable"
-									font-size="32"
-									font-weight="500"
-								>
-									<tspan x="115.923555" y="43" fill="#FFFFFF">Blue Wins!</tspan>
-								</text>
-							</g>
-						</g>
-					</g>
-				</svg>
-			{:else if data.params?.redScore > data.params?.blueScore}
-				<svg
-					width="1920px"
-					height="1080px"
-					viewBox="0 0 1920 1080"
-					version="1.1"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlns:xlink="http://www.w3.org/1999/xlink"
-				>
-					<title>Results - Red Wins</title>
-					<defs>
-						<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
-						<rect id="path-2" x="0" y="144" width="1920" height="936"></rect>
-						<filter
-							x="-6.8%"
-							y="-34.4%"
-							width="113.5%"
-							height="181.2%"
-							filterUnits="objectBoundingBox"
-							id="filter-4"
-						>
-							<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-							<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
-							></feGaussianBlur>
-							<feColorMatrix
-								values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0"
-								type="matrix"
-								in="shadowBlurOuter1"
-								result="shadowMatrixOuter1"
-							></feColorMatrix>
-							<feMerge>
-								<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-								<feMergeNode in="SourceGraphic"></feMergeNode>
-							</feMerge>
-						</filter>
-					</defs>
-					<g id="Results---Red-Wins" stroke="none" fill="none" xlink:href="#path-1">
-						<mask id="mask-3" fill="white" maskUnits="userSpaceOnUse">
-							<use xlink:href="#path-2"></use>
-						</mask>
-						<g id="Rectangle"></g>
-						<g
-							id="Red-Wins"
-							filter="url(#filter-4)"
-							stroke-width="1"
-							fill-rule="evenodd"
-							mask="url(#mask-3)"
-						>
-							<g transform="translate(768, 144)">
-								<rect
-									id="Background"
-									fill="#ED1C24"
-									fill-rule="evenodd"
-									x="0"
-									y="0"
-									width="384"
-									height="64"
-								></rect>
-								<text
-									id="Red-Wins!"
-									fill="none"
-									font-family="InterVariable-SemiBold, Inter Variable"
-									font-size="32"
-									font-weight="500"
-								>
-									<tspan x="119.751663" y="44" fill="#FFFFFF">Red Wins!</tspan>
-								</text>
-							</g>
-						</g>
-					</g>
-				</svg>
-			{:else}
-				<svg
-					width="1920px"
-					height="1080px"
-					viewBox="0 0 1920 1080"
-					version="1.1"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlns:xlink="http://www.w3.org/1999/xlink"
-				>
-					<title>Results - Tie</title>
-					<defs>
-						<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
-						<rect id="path-2" x="0" y="144" width="1920" height="936"></rect>
-						<filter
-							x="-6.8%"
-							y="-34.4%"
-							width="113.5%"
-							height="181.2%"
-							filterUnits="objectBoundingBox"
-							id="filter-4"
-						>
-							<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-							<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
-							></feGaussianBlur>
-							<feColorMatrix
-								values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0"
-								type="matrix"
-								in="shadowBlurOuter1"
-								result="shadowMatrixOuter1"
-							></feColorMatrix>
-							<feMerge>
-								<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-								<feMergeNode in="SourceGraphic"></feMergeNode>
-							</feMerge>
-						</filter>
-					</defs>
-					<g id="Results---Tie" stroke="none" fill="none" xlink:href="#path-1">
-						<mask id="mask-3" fill="white" maskUnits="userSpaceOnUse">
-							<use xlink:href="#path-2"></use>
-						</mask>
-						<g id="Rectangle"></g>
-						<g
-							id="Tie"
-							filter="url(#filter-4)"
-							stroke-width="1"
-							fill-rule="evenodd"
-							mask="url(#mask-3)"
-						>
-							<g transform="translate(768, 144)">
-								<rect
-									id="Background"
-									fill="#666666"
-									fill-rule="evenodd"
-									x="0"
-									y="0"
-									width="384"
-									height="64"
-								></rect>
-								<text
-									id="Tie"
-									fill="none"
-									font-family="InterVariable-SemiBold, Inter Variable"
-									font-size="32"
-									font-weight="500"
-								>
-									<tspan x="169.403164" y="44" fill="#FFFFFF">Tie</tspan>
-								</text>
-							</g>
-						</g>
-					</g>
-				</svg>
-			{/if}
 		</div>
 
 		<div id="randomization">
@@ -564,7 +397,7 @@
 				x="-1.4%"
 				y="-15.3%"
 				width="102.7%"
-				height="138.9%"
+				height="202.8%"
 				filterUnits="objectBoundingBox"
 				id="filter-2"
 			>
@@ -582,50 +415,7 @@
 					<feMergeNode in="SourceGraphic"></feMergeNode>
 				</feMerge>
 			</filter>
-			<filter
-				x="-3.8%"
-				y="-20.8%"
-				width="107.5%"
-				height="158.3%"
-				filterUnits="objectBoundingBox"
-				id="filter-3"
-			>
-				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-				<feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"
-				></feGaussianBlur>
-				<feColorMatrix
-					values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0"
-					type="matrix"
-					in="shadowBlurOuter1"
-					result="shadowMatrixOuter1"
-				></feColorMatrix>
-				<feMerge>
-					<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-					<feMergeNode in="SourceGraphic"></feMergeNode>
-				</feMerge>
-			</filter>
-			<filter
-				x="-3.8%"
-				y="-20.8%"
-				width="107.5%"
-				height="158.3%"
-				filterUnits="objectBoundingBox"
-				id="filter-4"
-			>
-				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
-				<feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"
-				></feGaussianBlur>
-				<feColorMatrix
-					values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0"
-					type="matrix"
-					in="shadowBlurOuter1"
-					result="shadowMatrixOuter1"
-				></feColorMatrix>
-				<feMerge>
-					<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
-					<feMergeNode in="SourceGraphic"></feMergeNode>
-				</feMerge>
-			</filter>
+			<rect id="path-3" x="-768" y="0" width="1920" height="936"></rect>
 			<filter
 				x="-3.8%"
 				y="-20.8%"
@@ -670,7 +460,51 @@
 					<feMergeNode in="SourceGraphic"></feMergeNode>
 				</feMerge>
 			</filter>
-			<linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-7">
+			<filter
+				x="-3.8%"
+				y="-20.8%"
+				width="107.5%"
+				height="158.3%"
+				filterUnits="objectBoundingBox"
+				id="filter-7"
+			>
+				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+				<feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"
+				></feGaussianBlur>
+				<feColorMatrix
+					values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0"
+					type="matrix"
+					in="shadowBlurOuter1"
+					result="shadowMatrixOuter1"
+				></feColorMatrix>
+				<feMerge>
+					<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+					<feMergeNode in="SourceGraphic"></feMergeNode>
+				</feMerge>
+			</filter>
+			<filter
+				x="-3.8%"
+				y="-20.8%"
+				width="107.5%"
+				height="158.3%"
+				filterUnits="objectBoundingBox"
+				id="filter-8"
+			>
+				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+				<feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"
+				></feGaussianBlur>
+				<feColorMatrix
+					values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0"
+					type="matrix"
+					in="shadowBlurOuter1"
+					result="shadowMatrixOuter1"
+				></feColorMatrix>
+				<feMerge>
+					<feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+					<feMergeNode in="SourceGraphic"></feMergeNode>
+				</feMerge>
+			</filter>
+			<linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-9">
 				<stop stop-color="#000000" offset="0%"></stop>
 				<stop stop-color="#222222" offset="100%"></stop>
 			</linearGradient>
@@ -680,7 +514,7 @@
 				width="113.5%"
 				height="262.5%"
 				filterUnits="objectBoundingBox"
-				id="filter-8"
+				id="filter-10"
 			>
 				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
 				<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
@@ -702,7 +536,7 @@
 				width="299.1%"
 				height="175.0%"
 				filterUnits="objectBoundingBox"
-				id="filter-9"
+				id="filter-11"
 			>
 				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
 				<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
@@ -724,7 +558,7 @@
 				width="299.1%"
 				height="136.1%"
 				filterUnits="objectBoundingBox"
-				id="filter-10"
+				id="filter-12"
 			>
 				<feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
 				<feGaussianBlur stdDeviation="8" in="shadowOffsetOuter1" result="shadowBlurOuter1"
@@ -745,13 +579,91 @@
 			<rect id="Darkening" fill-opacity="0.6" fill="#000000" x="0" y="144" width="1920" height="936"
 			></rect>
 			<g id="Top-Bar" filter="url(#filter-2)" stroke-width="1">
+				{#if data.params?.winner === 'BLUE'}
+					<g id="Blue-Wins" transform="translate(768, 144)">
+						<rect id="Background" fill="#0066B3" x="0" y="0" width="384" height="64"></rect>
+						<text
+							id="Blue-Wins!"
+							font-family="InterVariable-SemiBold, Inter Variable"
+							font-size="32"
+							font-weight="500"
+							fill="#FFFFFF"
+						>
+							<tspan x="115.923555" y="43">Blue Wins!</tspan>
+						</text>
+					</g>
+				{:else if data.params?.winner === 'RED'}
+					<g id="Red-Wins" transform="translate(768, 144)">
+						<mask id="mask-4" fill="white">
+							<use xlink:href="#path-3"></use>
+						</mask>
+						<g id="Rectangle"></g>
+						<rect
+							id="Background"
+							fill="#ED1C24"
+							mask="url(#mask-4)"
+							x="0"
+							y="0"
+							width="384"
+							height="64"
+						></rect>
+						<text
+							id="Red-Wins!"
+							mask="url(#mask-4)"
+							font-family="InterVariable-SemiBold, Inter Variable"
+							font-size="32"
+							font-weight="500"
+							fill="#FFFFFF"
+						>
+							<tspan x="119.751663" y="44">Red Wins!</tspan>
+						</text>
+					</g>
+				{:else}
+					<g id="Tie" transform="translate(768, 144)">
+						<rect id="Background" fill="#777777" x="0" y="0" width="384" height="64"></rect>
+						<text
+							font-family="InterVariable-SemiBold, Inter Variable"
+							font-size="32"
+							font-weight="500"
+							fill="#FFFFFF"
+						>
+							<tspan x="169.403164" y="44">Tie</tspan>
+						</text>
+					</g>
+				{/if}
+
+				{#if data.params?.blueHighScore || data.params?.redHighScore}
+					<g id="High-Score" transform="translate(768, 208)">
+						<rect id="Background" fill="#FDF505" x="0" y="0" width="384" height="32"></rect>
+						<polygon
+							id="Star"
+							fill="#000000"
+							points="16 20 11.297718 22.472136 12.1957739 17.236068 8.39154787 13.527864 13.648859 12.763932 16 8 18.351141 12.763932 23.6084521 13.527864 19.8042261 17.236068 20.702282 22.472136"
+						></polygon>
+						<polygon
+							id="Star"
+							fill="#000000"
+							points="368 20 363.297718 22.472136 364.195774 17.236068 360.391548 13.527864 365.648859 12.763932 368 8 370.351141 12.763932 375.608452 13.527864 371.804226 17.236068 372.702282 22.472136"
+						></polygon>
+						<text
+							id="Event-High-Score"
+							font-family="InterVariable-SemiBold, Inter Variable"
+							font-size="16"
+							font-weight="500"
+							fill="#000000"
+						>
+							<tspan x="126.124998" y="22">Event High Score</tspan>
+						</text>
+					</g>
+				{/if}
+
 				<g id="Red-Teams" transform="translate(1152, 80)">
 					<rect id="Background" fill="#830F12" x="0" y="0" width="768" height="64"></rect>
-					<g id="Red-Team-Card-2" filter="url(#filter-3)" transform="translate(388, 8)">
+					<g id="Red-Team-Card-2" filter="url(#filter-5)" transform="translate(388, 8)">
 						<rect id="Background" fill="#ED1C24" x="0" y="0" width="372" height="48"></rect>
 						<rect id="Rank-Background" fill="#FFFFFF" x="0" y="0" width="48" height="48"></rect>
 					</g>
-					<g id="Red-Team-Card-1" filter="url(#filter-4)" transform="translate(8, 8)">
+					<g id="Red-Team-Card-1" filter="url(#filter-6)" transform="translate(8, 8)">
 						<rect id="Background" fill="#ED1C24" x="0" y="0" width="372" height="48"></rect>
 						<rect id="Rank-Background" fill="#FFFFFF" x="0" y="0" width="48" height="48"></rect>
 					</g>
@@ -776,17 +688,17 @@
 				</g>
 				<g id="Blue-Teams" transform="translate(0, 80)">
 					<rect id="Background" fill="#004272" x="0" y="0" width="768" height="64"></rect>
-					<g id="Blue-Team-Card-2" filter="url(#filter-5)" transform="translate(388, 8)">
+					<g id="Blue-Team-Card-2" filter="url(#filter-7)" transform="translate(388, 8)">
 						<rect id="Background" fill="#0066B3" x="0" y="0" width="372" height="48"></rect>
 						<rect id="Rank-Background" fill="#FFFFFF" x="324" y="0" width="48" height="48"></rect>
 					</g>
-					<g id="Blue-Team-Card-1" filter="url(#filter-6)" transform="translate(8, 8)">
+					<g id="Blue-Team-Card-1" filter="url(#filter-8)" transform="translate(8, 8)">
 						<rect id="Background" fill="#0066B3" x="0" y="0" width="372" height="48"></rect>
 						<rect id="Rank-Background" fill="#FFFFFF" x="324" y="0" width="48" height="48"></rect>
 					</g>
 				</g>
 				<g id="Header">
-					<rect id="Background" fill="url(#linearGradient-7)" x="0" y="0" width="1920" height="80"
+					<rect id="Background" fill="url(#linearGradient-9)" x="0" y="0" width="1920" height="80"
 					></rect>
 					<g id="Trailing-Header" transform="translate(1584, 16)">
 						<image
@@ -828,7 +740,7 @@
 					</g>
 				</g>
 			</g>
-			<g id="Fouls" filter="url(#filter-8)" stroke-width="1" transform="translate(768, 792)">
+			<g id="Fouls" filter="url(#filter-10)" stroke-width="1" transform="translate(768, 792)">
 				<rect id="Red-Foul-Background" fill="#ED1C24" x="288" y="0" width="96" height="32"></rect>
 				<g transform="translate(96, 0)">
 					<rect id="Background" fill="#FFFFFF" x="0" y="0" width="192" height="32"></rect>
@@ -846,7 +758,7 @@
 			</g>
 			<g
 				id="Teleop-Score-Zone"
-				filter="url(#filter-9)"
+				filter="url(#filter-11)"
 				stroke-width="1"
 				transform="translate(500, 568)"
 			>
@@ -1033,7 +945,7 @@
 			</g>
 			<g
 				id="Auto-Score-Zone"
-				filter="url(#filter-10)"
+				filter="url(#filter-12)"
 				stroke-width="1"
 				transform="translate(500, 396)"
 			>

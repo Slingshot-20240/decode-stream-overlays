@@ -11,6 +11,7 @@
 	export let eventTitle: string;
 	export let data: ScoreResultMessage = {} as ScoreResultMessage;
 	export let timer: number;
+	export let useLeagueRanking: boolean;
 </script>
 
 <div id="overlay-container">
@@ -26,13 +27,13 @@
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[0]?.number}</h2></div>
 					<div class="team-name"><h2>{data.params?.blue?.teams[0]?.name}</h2></div>
-					<div class="team-rank"><h2>{data.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? data.params?.blue?.teams[0]?.leagueRanking : data.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
 				</div>
 
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[1]?.number}</h2></div>
 					<div class="team-name"><h2>{data.params?.blue?.teams[1]?.name}</h2></div>
-					<div class="team-rank"><h2>{data.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? data.params?.blue?.teams[1]?.leagueRanking : data.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
 				</div>
 			</div>
 
@@ -44,13 +45,13 @@
 
 			<div id="red-teams">
 				<div class="team-card">
-					<div class="team-rank"><h2>{data.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? data.params?.red?.teams[0]?.leagueRanking : data.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
 					<div class="team-name"><h2>{data.params?.red?.teams[0]?.name}</h2></div>
 					<div class="team-number"><h2>{data.params?.red?.teams[0]?.number}</h2></div>
 				</div>
 
 				<div class="team-card">
-					<div class="team-rank"><h2>{data.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? data.params?.red?.teams[1]?.leagueRanking : data.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
 					<div class="team-name"><h2>{data.params?.red?.teams[1]?.name}</h2></div>
 					<div class="team-number"><h2>{data.params?.red?.teams[1]?.number}</h2></div>
 				</div>

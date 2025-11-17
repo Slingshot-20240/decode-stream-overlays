@@ -3,8 +3,12 @@
 	src: url(/InterVariable.ttf);
 }
 
-:root, * {
-	font-family: InterVariable, sans-serif;
+:root,
+* {
+	font-family: 'Inter Variable';
+	font-feature-settings:
+		'liga' 1,
+		'calt' 1;
 }
 
 * {

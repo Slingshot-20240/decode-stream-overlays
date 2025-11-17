@@ -4,6 +4,7 @@
 	import type { InformationMessage } from './types';
 
 	export let info: InformationMessage = {} as InformationMessage;
+	export let useLeagueRanking: boolean;
 </script>
 
 <div id="results-up-next-overlay-container">
@@ -13,13 +14,13 @@
 				<div class="team-card">
 					<div class="team-number"><h2>{info.params?.blue?.teams[0]?.number}</h2></div>
 					<div class="team-name"><h2>{info.params?.blue?.teams[0]?.name}</h2></div>
-					<div class="team-rank"><h2>{info.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.blue?.teams[0]?.leagueRanking : info.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
 				</div>
 
 				<div class="team-card">
 					<div class="team-number"><h2>{info.params?.blue?.teams[1]?.number}</h2></div>
 					<div class="team-name"><h2>{info.params?.blue?.teams[1]?.name}</h2></div>
-					<div class="team-rank"><h2>{info.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.blue?.teams[1]?.leagueRanking : info.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
 				</div>
 			</div>
 
@@ -29,13 +30,13 @@
 
 			<div id="red-teams">
 				<div class="team-card">
-					<div class="team-rank"><h2>{info.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.red?.teams[0]?.leagueRanking : info.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
 					<div class="team-name"><h2>{info.params?.red?.teams[0]?.name}</h2></div>
 					<div class="team-number"><h2>{info.params?.red?.teams[0]?.number}</h2></div>
 				</div>
 
 				<div class="team-card">
-					<div class="team-rank"><h2>{info.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
+					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.red?.teams[1]?.leagueRanking : info.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
 					<div class="team-name"><h2>{info.params?.red?.teams[1]?.name}</h2></div>
 					<div class="team-number"><h2>{info.params?.red?.teams[1]?.number}</h2></div>
 				</div>

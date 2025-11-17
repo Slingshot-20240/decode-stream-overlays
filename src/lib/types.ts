@@ -72,6 +72,7 @@ export interface ScoreResultMessage {
         blueScore: number;
         redHighScore: boolean;
         blueHighScore: boolean;
+        winner: string;
         isEventConclusion: boolean;
         isDivisionConclusion: boolean;
         highScoreLevel: "EVENT" | string;
