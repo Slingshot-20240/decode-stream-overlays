@@ -1,34 +1,13 @@
-#overlay-container #overlay-content {
-	.auto-score-details-group {
+#teleop-overlay #overlay-content {
+	.special-score-details-group {
 		position: absolute;
 		width: 456px;
-		height: 160px;
+		height: 104px;
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
 
-		.auto-score-details {
-			position: absolute;
-			top: 0;
-			width: 456px;
-			height: 48px;
-			display: flex;
-			align-items: center;
-			gap: 264px;
-
-			.score-detail h2 {
-				width: 48px;
-				font-size: 24px;
-				font-weight: 700;
-				text-align: center;
-				color: #fff;
-			}
-		}
-
 		.motifs {
-			position: absolute;
-			top: 56px;
-
 			.motifs-artifacts {
 				position: absolute;
 				top: 8px;
@@ -63,7 +42,7 @@
 
 		.locations-group {
 			position: absolute;
-			top: 112px;
+			top: 56px;
 			width: 48px;
 			height: 48px;
 			display: flex;
@@ -92,7 +71,7 @@
 					h2 {
 						width: 100%;
 						font-size: 22px;
-						font-weight: 600;
+						font-weight: 550;
 						text-align: center;
 						color: #fff;
 					}
@@ -101,13 +80,9 @@
 		}
 	}
 
-	#blue-auto-score-details {
+	#blue-special-score-details {
 		top: 168px;
 		left: 24px;
-
-		.auto-score-details .score-detail h2 {
-			margin-left: 48px;
-		}
 
 		.motifs .motifs-count {
 			left: 408px;
@@ -118,13 +93,9 @@
 		}
 	}
 
-	#red-auto-score-details {
+	#red-special-score-details {
 		top: 168px;
 		left: 1440px;
-
-		.auto-score-details .score-detail h2 {
-			margin-right: 48px;
-		}
 
 		.motifs .motifs-count {
 			left: 0;

@@ -1,7 +1,7 @@
-#overlay-container {
+#base-overlay,
+#results-overlay {
 	width: 1920px;
 	height: 1080px;
-	position: relative;
 
 	#overlay-content {
 		width: 100%;
@@ -84,7 +84,11 @@
 
 				.team-name {
 					width: 240px;
-					padding: 0 14px;
+					--animate-marquee-left: marquee-left 25s linear infinite;
+
+					h2 {
+						padding: 0 14px;
+					}
 				}
 
 				.team-rank {
@@ -143,7 +147,7 @@
 		}
 	}
 
-	#overlay-background {
+	.overlay-background {
 		width: 100%;
 		height: 100%;
 		position: absolute;

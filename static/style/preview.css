@@ -1,5 +1,6 @@
-#overlay-container #overlay-content #teams-and-scores #up-next-header {
+#preview-overlay #overlay-content #up-next-header {
 	position: absolute;
+	top: 80px;
 	left: 768px;
 	width: 384px;
 	height: 64px;
@@ -10,7 +11,7 @@
 
 	h2 {
 		font-size: 28px;
-		font-weight: 600;
+		font-weight: 500;
 	}
 
 	#randomization {

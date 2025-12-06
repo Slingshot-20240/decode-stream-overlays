@@ -3,24 +3,59 @@
 <script lang="ts">
 	import type { InformationMessage } from './types';
 
+	import { Marquee } from '@selemondev/svelte-marquee';
+	import '@selemondev/svelte-marquee/dist/style.css';
+
 	export let info: InformationMessage = {} as InformationMessage;
 	export let useLeagueRanking: boolean;
 </script>
 
-<div id="results-up-next-overlay-container">
-	<div id="results-up-next-overlay-content">
+<div id="results-up-next-overlay" class="overlay-container">
+	<div id="overlay-content">
 		<div id="up-next-banner">
 			<div id="blue-teams">
 				<div class="team-card">
 					<div class="team-number"><h2>{info.params?.blue?.teams[0]?.number}</h2></div>
-					<div class="team-name"><h2>{info.params?.blue?.teams[0]?.name}</h2></div>
-					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.blue?.teams[0]?.leagueRanking : info.params?.blue?.teams[0]?.ranking || "NP"}</h2></div>
+
+					<div class="team-name">
+						{#if info.params?.blue?.teams[0]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{info.params?.blue?.teams[0]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{info.params?.blue?.teams[0]?.name}</h2>
+						{/if}
+					</div>
+
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? info.params?.blue?.teams[0]?.leagueRanking
+								: info.params?.blue?.teams[0]?.ranking || 'NP'}
+						</h2>
+					</div>
 				</div>
 
 				<div class="team-card">
 					<div class="team-number"><h2>{info.params?.blue?.teams[1]?.number}</h2></div>
-					<div class="team-name"><h2>{info.params?.blue?.teams[1]?.name}</h2></div>
-					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.blue?.teams[1]?.leagueRanking : info.params?.blue?.teams[1]?.ranking || "NP"}</h2></div>
+
+					<div class="team-name">
+						{#if info.params?.blue?.teams[1]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{info.params?.blue?.teams[1]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{info.params?.blue?.teams[1]?.name}</h2>
+						{/if}
+					</div>
+
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? info.params?.blue?.teams[1]?.leagueRanking
+								: info.params?.blue?.teams[1]?.ranking || 'NP'}
+						</h2>
+					</div>
 				</div>
 			</div>
 
@@ -30,14 +65,46 @@
 
 			<div id="red-teams">
 				<div class="team-card">
-					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.red?.teams[0]?.leagueRanking : info.params?.red?.teams[0]?.ranking || "NP"}</h2></div>
-					<div class="team-name"><h2>{info.params?.red?.teams[0]?.name}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? info.params?.red?.teams[0]?.leagueRanking
+								: info.params?.red?.teams[0]?.ranking || 'NP'}
+						</h2>
+					</div>
+
+					<div class="team-name">
+						{#if info.params?.red?.teams[0]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{info.params?.red?.teams[0]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{info.params?.red?.teams[0]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-number"><h2>{info.params?.red?.teams[0]?.number}</h2></div>
 				</div>
 
 				<div class="team-card">
-					<div class="team-rank"><h2>{useLeagueRanking ? info.params?.red?.teams[1]?.leagueRanking : info.params?.red?.teams[1]?.ranking || "NP"}</h2></div>
-					<div class="team-name"><h2>{info.params?.red?.teams[1]?.name}</h2></div>
+					<div class="team-rank">
+						<h2>
+							{useLeagueRanking
+								? info.params?.red?.teams[1]?.leagueRanking
+								: info.params?.red?.teams[1]?.ranking || 'NP'}
+						</h2>
+					</div>
+
+					<div class="team-name">
+						{#if info.params?.red?.teams[1]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{info.params?.red?.teams[1]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{info.params?.red?.teams[1]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-number"><h2>{info.params?.red?.teams[1]?.number}</h2></div>
 				</div>
 			</div>
@@ -45,7 +112,7 @@
 	</div>
 
 	<svg
-		id="overlay-background"
+		class="overlay-background"
 		width="1920px"
 		height="1080px"
 		viewBox="0 0 1920 1080"

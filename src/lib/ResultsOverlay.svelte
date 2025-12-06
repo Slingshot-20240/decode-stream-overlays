@@ -18,6 +18,9 @@
 	import NoPark from '$lib/assets/image/no_park.svg';
 	import { onMount } from 'svelte';
 
+	import { Marquee } from '@selemondev/svelte-marquee';
+	import '@selemondev/svelte-marquee/dist/style.css';
+
 	export let leagueTitle: string;
 	export let eventTitle: string;
 	export let data: ScoreResultMessage = {} as ScoreResultMessage;
@@ -108,7 +111,7 @@
 	}
 </script>
 
-<div id="overlay-container">
+<div id="results-overlay" class="overlay-container">
 	<div id="overlay-content">
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
@@ -136,7 +139,17 @@
 			<div id="blue-teams">
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[0]?.number}</h2></div>
-					<div class="team-name"><h2>{data.params?.blue?.teams[0]?.name}</h2></div>
+
+					<div class="team-name">
+						{#if data.params?.blue?.teams[0]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{data.params?.blue?.teams[0]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{data.params?.blue?.teams[0]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-rank">
 						<h2>
 							{useLeagueRanking
@@ -148,7 +161,17 @@
 
 				<div class="team-card">
 					<div class="team-number"><h2>{data.params?.blue?.teams[1]?.number}</h2></div>
-					<div class="team-name"><h2>{data.params?.blue?.teams[1]?.name}</h2></div>
+
+					<div class="team-name">
+						{#if data.params?.blue?.teams[1]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{data.params?.blue?.teams[1]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{data.params?.blue?.teams[1]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-rank">
 						<h2>
 							{useLeagueRanking
@@ -187,7 +210,17 @@
 								: data.params?.red?.teams[0]?.ranking || 'NP'}
 						</h2>
 					</div>
-					<div class="team-name"><h2>{data.params?.red?.teams[0]?.name}</h2></div>
+
+					<div class="team-name">
+						{#if data.params?.red?.teams[0]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{data.params?.red?.teams[0]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{data.params?.red?.teams[0]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-number"><h2>{data.params?.red?.teams[0]?.number}</h2></div>
 				</div>
 
@@ -199,7 +232,17 @@
 								: data.params?.red?.teams[1]?.ranking || 'NP'}
 						</h2>
 					</div>
-					<div class="team-name"><h2>{data.params?.red?.teams[1]?.name}</h2></div>
+
+					<div class="team-name">
+						{#if data.params?.red?.teams[1]?.name.length > 20}
+							<Marquee fade={true}>
+								<h2>{data.params?.red?.teams[1]?.name}</h2>
+							</Marquee>
+						{:else}
+							<h2>{data.params?.red?.teams[1]?.name}</h2>
+						{/if}
+					</div>
+
 					<div class="team-number"><h2>{data.params?.red?.teams[1]?.number}</h2></div>
 				</div>
 			</div>
@@ -382,7 +425,7 @@
 	</div>
 
 	<svg
-		id="overlay-background"
+		class="overlay-background"
 		width="1920px"
 		height="1080px"
 		viewBox="0 0 1920 1080"
@@ -1129,7 +1172,5 @@
 
 <style>
 	@import url('/style/top.css');
-	@import url('/style/scores.css');
-	@import url('/style/timer.css');
 	@import url('/style/results.css');
 </style>

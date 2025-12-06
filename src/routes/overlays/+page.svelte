@@ -3,7 +3,10 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
+	import BaseOverlay from '$lib/BaseOverlay.svelte';
+	import BaseOverlayShadow from '$lib/BaseOverlayShadow.svelte';
 	import PreviewOverlay from '$lib/PreviewOverlay.svelte';
+	import MatchBaseOverlay from '$lib/MatchBaseOverlay.svelte';
 	import AutoOverlay from '$lib/AutoOverlay.svelte';
 	import AutoEndOverlay from '$lib/AutoEndOverlay.svelte';
 	import TeleopOverlay from '$lib/TeleopOverlay.svelte';
@@ -171,6 +174,8 @@
 				} else {
 					newShowResultsUpNextOverlay = true;
 				}
+
+				console.log(newShowResultsUpNextOverlay)
 				break;
 			case 'SHOW_PREVIEW':
 				type = types.DisplayType.PREVIEW;
@@ -212,7 +217,7 @@
 					} else {
 						type = types.DisplayType.AUTO_END;
 					}
-					startTimer();
+					startTimer(150 - offset);
 				}
 				break;
 			case 'SHOW_RESULTS':
@@ -263,7 +268,7 @@
 				if (!initialized) {
 					initialized = true;
 					if (
-						informationalData?.index > scoringData?.index ||
+						(informationalData?.index || 0) > (scoringData?.index || 0) ||
 						scoringData?.type === 'SCORE_UPDATE'
 					) {
 						updateType(informationalData);
@@ -300,7 +305,7 @@
 				if (!initialized) {
 					initialized = true;
 					if (
-						informationalData?.index > scoringData?.index ||
+						(informationalData?.index || 0) > (scoringData?.index || 0) ||
 						scoringData?.type === 'SCORE_UPDATE'
 					) {
 						updateType(informationalData);
@@ -425,41 +430,89 @@
 			console.error('WebSocket error:', error);
 		};
 	}
-
-	let currentComponent: any;
-
-	const overlayMap: Partial<Record<types.DisplayType, any>> = {
-		[types.DisplayType.PREVIEW]: PreviewOverlay,
-		[types.DisplayType.AUTO]: AutoOverlay,
-		[types.DisplayType.AUTO_END]: AutoEndOverlay,
-		[types.DisplayType.TELEOP]: TeleopOverlay,
-		[types.DisplayType.ENDGAME]: EndgameOverlay,
-		[types.DisplayType.AWAITING_REVIEW]: AwaitingReviewOverlay,
-		[types.DisplayType.RESULTS]: ResultsOverlay,
-		[types.DisplayType.ABORTED]: AbortedOverlay
-	};
-
-	$: currentComponent = overlayMap[type];
 </script>
 
 <main>
 	<container>
-		{#key type}
-			<div in:fade={{ duration: 500 }} out:fade={{ delay: 500, duration: 500 }}>
-				<svelte:component
-					this={currentComponent}
+		{#if ![types.DisplayType.NONE, types.DisplayType.RESULTS].includes(type)}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<BaseOverlay
 					{leagueTitle}
 					{eventTitle}
-					data={scoringData as types.ScoreResultMessage}
-					info={informationalData as types.InformationMessage}
-					{timer}
+					data={type === types.DisplayType.PREVIEW ? informationalData : scoringData}
 					{useLeagueRanking}
 				/>
 			</div>
-		{/key}
+		{/if}
+
+		{#if type === types.DisplayType.PREVIEW}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<PreviewOverlay
+					info={informationalData as types.InformationMessage}
+					data={scoringData as types.ScoreResultMessage}
+				/>
+			</div>
+		{/if}
+
+		{#if [types.DisplayType.AUTO, types.DisplayType.AUTO_END, types.DisplayType.TELEOP, types.DisplayType.ENDGAME, types.DisplayType.AWAITING_REVIEW].includes(type)}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<BaseOverlayShadow />
+			</div>
+
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<MatchBaseOverlay data={scoringData as types.ScoreResultMessage} {timer} />
+			</div>
+		{/if}
+
+		{#if [types.DisplayType.AUTO, types.DisplayType.AUTO_END].includes(type)}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<AutoOverlay data={scoringData as types.ScoreResultMessage} />
+			</div>
+		{/if}
+
+		{#if type === types.DisplayType.AUTO_END}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<AutoEndOverlay data={scoringData} />
+			</div>
+		{/if}
+
+		{#if [types.DisplayType.TELEOP, types.DisplayType.ENDGAME, types.DisplayType.AWAITING_REVIEW].includes(type)}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<TeleopOverlay data={scoringData} />
+			</div>
+		{/if}
+
+		{#if [types.DisplayType.ENDGAME, types.DisplayType.AWAITING_REVIEW].includes(type)}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<EndgameOverlay data={scoringData} />
+			</div>
+		{/if}
+
+		{#if type === types.DisplayType.AWAITING_REVIEW}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<AwaitingReviewOverlay data={scoringData} />
+			</div>
+		{/if}
+
+		{#if type === types.DisplayType.ABORTED}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<AbortedOverlay />
+			</div>
+		{/if}
+
+		{#if type === types.DisplayType.RESULTS}
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
+				<ResultsOverlay
+					{leagueTitle}
+					{eventTitle}
+					data={scoringData as types.ScoreResultMessage}
+					{useLeagueRanking}
+				/>
+			</div>
+		{/if}
 
 		{#if showResultsUpNextOverlay}
-			<div in:fade={{ duration: 500 }} out:fade={{ delay: 500, duration: 500 }}>
+			<div in:fade={{ duration: 500 }} out:fade={{ duration: 500 }}>
 				<ResultsUpNextOverlay
 					info={informationalData as types.InformationMessage}
 					{useLeagueRanking}
@@ -499,7 +552,7 @@
 			width: 100vw;
 			height: calc(100vw / 16 * 9);
 
-			:global(#overlay-container, #results-up-next-overlay-container) {
+			:global(.overlay-container) {
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -507,12 +560,16 @@
 				transform: scale(calc(100vw / 1920px));
 			}
 
-			:global(#overlay-container) {
-				z-index: 0;
+			:global(#preview-overlay, #match-base-overlay) {
+				z-index: -1;
 			}
 
-			:global(#results-up-next-overlay-container) {
-				z-index: 1;
+			:global(#base-overlay) {
+				z-index: -2;
+			}
+
+			:global(#base-overlay-shadow) {
+				z-index: -3;
 			}
 		}
 
@@ -521,7 +578,7 @@
 				width: calc(100vh / 9 * 16);
 				height: 100vh;
 
-				:global(#overlay-container, #results-up-next-overlay-container) {
+				:global(.overlay-container) {
 					transform: scale(calc(100vh / 1080px));
 				}
 			}

@@ -1,9 +1,5 @@
-#results-up-next-overlay-container {
-	width: 1920px;
-	height: 1080px;
-	position: relative;
-
-	#results-up-next-overlay-content {
+#results-up-next-overlay {
+	#overlay-content {
 		width: 100%;
 		height: 100%;
 		position: relative;
@@ -38,7 +34,11 @@
 
 				.team-name {
 					width: 240px;
-					padding: 0 14px;
+					--animate-marquee-left: marquee-left 25s linear infinite;
+					
+					h2 {
+						padding: 0 14px;
+					}
 				}
 
 				.team-rank {
@@ -96,7 +96,7 @@
 				height: 100%;
 				position: absolute;
 				top: 0;
-				right: 0;
+				left: 1152px;
 				padding: 0 8px;
 				display: flex;
 				align-items: center;
@@ -114,12 +114,9 @@
 		}
 	}
 
-	#overlay-background {
-		width: 100%;
-		height: 100%;
+	.overlay-background {
 		position: absolute;
 		top: 0;
 		left: 0;
-		z-index: 0;
 	}
 }

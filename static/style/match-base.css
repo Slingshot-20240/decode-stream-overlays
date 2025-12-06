@@ -1,0 +1,65 @@
+#match-base-overlay #overlay-content {
+	#scores-and-timer {
+		width: 384px;
+		height: 64px;
+		position: absolute;
+		top: 80px;
+		left: 768px;
+		display: flex;
+		justify-content: space-between;
+
+		#blue-score,
+		#red-score {
+			width: 128px;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			h1 {
+				font-size: 40px;
+				font-weight: 550;
+			}
+		}
+
+		#blue-score,
+		#red-score {
+			h1 {
+				color: #fff;
+			}
+		}
+
+		#match-timer {
+			position: absolute;
+			left: 128px;
+			width: 128px;
+			height: 64px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			h1 {
+				font-size: 40px;
+				font-weight: 550;
+				font-feature-settings: 'tnum';
+				color: #000;
+			}
+		}
+	}
+
+	#randomization {
+		position: absolute;
+		top: 168px;
+		left: 896px;
+		width: 128px;
+		height: 48px;
+		padding: 8px;
+		display: flex;
+		gap: 8px;
+
+		img {
+			width: 32px;
+			height: 32px;
+		}
+	}
+}

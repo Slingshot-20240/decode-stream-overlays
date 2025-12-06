@@ -1,0 +1,13 @@
+#aborted-overlay #overlay-content h1 {
+	position: absolute;
+	top: 80px;
+	left: 768px;
+	width: 384px;
+	height: 64px;
+	padding: 16px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 28px;
+	font-weight: 500;
+}
