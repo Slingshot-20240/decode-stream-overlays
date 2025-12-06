@@ -5,7 +5,7 @@
 
 :root,
 * {
-	font-family: 'Inter Variable';
+	font-family: 'Inter Variable', 'InterVariable', InterVariable;
 	font-feature-settings:
 		'liga' 1,
 		'calt' 1;
