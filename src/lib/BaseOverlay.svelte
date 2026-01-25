@@ -117,16 +117,16 @@
 
 	<svg
 		class="overlay-background"
-		width="1920px"
-		height="1080px"
-		viewBox="0 0 1920 1080"
+		width="3840px"
+		height="2160px"
+		viewBox="0 0 3840 2160"
 		version="1.1"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
 		<title>Base</title>
 		<defs>
-			<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
+			<path d="M0,0 L3840,0 L3840,2160 L0,2160 L0,0 Z" id="path-1"></path>
 			<filter
 				x="-1.4%"
 				y="-15.3%"
@@ -277,7 +277,7 @@
 					</g>
 				</g>
 				<g id="Header">
-					<rect id="Background" fill="url(#linearGradient-7)" x="0" y="0" width="1920" height="80"
+					<rect id="Background" fill="url(#linearGradient-7)" x="0" y="0" width="3840" height="80"
 					></rect>
 					<g id="Trailing-Header" transform="translate(1584, 16)">
 						<image

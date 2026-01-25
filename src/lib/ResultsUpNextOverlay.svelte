@@ -113,16 +113,16 @@
 
 	<svg
 		class="overlay-background"
-		width="1920px"
-		height="1080px"
-		viewBox="0 0 1920 1080"
+		width="3840px"
+		height="2160px"
+		viewBox="0 0 3840 2160"
 		version="1.1"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
 		<title>Results Up Next</title>
 		<defs>
-			<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
+			<path d="M0,0 L3840,0 L3840,2160 L0,2160 L0,0 Z" id="path-1"></path>
 			<filter
 				x="-1.4%"
 				y="-46.9%"

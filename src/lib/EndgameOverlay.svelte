@@ -1,4 +1,4 @@
-<svelte:options customElement="endgame-overlay" />
+<svelte:options customElement="end-game-overlay" />
 
 <script lang="ts">
 	import type { ScoreResultMessage } from './types';
@@ -35,7 +35,7 @@
 	}
 </script>
 
-<div id="endgame-overlay" class="overlay-container">
+<div id="end-game-overlay" class="overlay-container">
 	<div id="overlay-content">
 		<div id="blue-teleop-special-score-details" class="special-score-details-group">
 			<div class="motifs">
@@ -96,16 +96,16 @@
 
 	<svg
 		class="overlay-background"
-		width="1920px"
-		height="1080px"
-		viewBox="0 0 1920 1080"
+		width="3840px"
+		height="2160px"
+		viewBox="0 0 3840 2160"
 		version="1.1"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
 		<title>Endgame</title>
 		<defs>
-			<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
+			<path d="M0,0 L3840,0 L3840,2160 L0,2160 L0,0 Z" id="path-1"></path>
 			<filter
 				x="-5.7%"
 				y="-21.2%"
@@ -242,5 +242,5 @@
 </div>
 
 <style>
-	@import url('/style/endgame.css');
+	@import url('/style/end-game.css');
 </style>

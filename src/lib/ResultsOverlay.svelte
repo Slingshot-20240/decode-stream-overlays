@@ -3,9 +3,9 @@
 <script lang="ts">
 	import type { ScoreResultMessage } from './types';
 
-	import BlueWins from '$lib/assets/video/blue_wins.webm';
+	import BlueWins from '$lib/assets/video/blue-wins.webm';
 	import Tie from '$lib/assets/video/tie.webm';
-	import RedWins from '$lib/assets/video/red_wins.webm';
+	import RedWins from '$lib/assets/video/red-wins.webm';
 	import ResultsSound from '$lib/assets/audio/results.wav';
 
 	import PurpleArtifact from '$lib/assets/image/purple_artifact.svg';
@@ -426,16 +426,16 @@
 
 	<svg
 		class="overlay-background"
-		width="1920px"
-		height="1080px"
-		viewBox="0 0 1920 1080"
+		width="3840px"
+		height="2160px"
+		viewBox="0 0 3840 2160"
 		version="1.1"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
 		<title>Results</title>
 		<defs>
-			<path d="M0,0 L1920,0 L1920,1080 L0,1080 L0,0 Z" id="path-1"></path>
+			<path d="M0,0 L3840,0 L3840,2160 L0,2160 L0,0 Z" id="path-1"></path>
 			<filter
 				x="-1.4%"
 				y="-15.3%"
@@ -458,7 +458,7 @@
 					<feMergeNode in="SourceGraphic"></feMergeNode>
 				</feMerge>
 			</filter>
-			<rect id="path-3" x="-768" y="0" width="1920" height="936"></rect>
+			<rect id="path-3" x="-768" y="0" width="3840" height="936"></rect>
 			<filter
 				x="-3.8%"
 				y="-20.8%"
@@ -619,7 +619,7 @@
 			</filter>
 		</defs>
 		<g id="Results" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd">
-			<rect id="Darkening" fill-opacity="0.6" fill="#000000" x="0" y="144" width="1920" height="936"
+			<rect id="Darkening" fill-opacity="0.6" fill="#000000" x="0" y="144" width="3840" height="936"
 			></rect>
 			<g id="Top-Bar" filter="url(#filter-2)" stroke-width="1">
 				{#if data.params?.winner === 'BLUE'}
@@ -741,7 +741,7 @@
 					</g>
 				</g>
 				<g id="Header">
-					<rect id="Background" fill="url(#linearGradient-9)" x="0" y="0" width="1920" height="80"
+					<rect id="Background" fill="url(#linearGradient-9)" x="0" y="0" width="3840" height="80"
 					></rect>
 					<g id="Trailing-Header" transform="translate(1584, 16)">
 						<image
