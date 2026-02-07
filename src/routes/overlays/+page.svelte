@@ -188,7 +188,7 @@
 				type = types.DisplayType.AUTO;
 				break;
 			case 'START_MATCH':
-				let offset = (ts() - message.ts) / 1000;
+				let offset = Math.max(0, (ts() - message.ts) / 1000);
 				let startSeconds = 30 - offset;
 
 				if (startSeconds < 0) {
